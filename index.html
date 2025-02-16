@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .quiz-container {
+            background: white;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .question {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .options button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #3498db;
+            color: white;
+        }
+        .options button:hover {
+            background-color: #2980b9;
+        }
+        .options button.selected {
+            background-color: #f1c40f;
+            color: black;
+        }
+        #submit-btn, #next-btn {
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            display: block;
+            margin: auto;
+            width: 80%;
+        }
+        #submit-btn {
+            background-color: #2ecc71;
+        }
+        #next-btn {
+            background-color: #3498db;
+            display: none;
+        }
+        #result {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        @media (max-width: 600px) {
+            .quiz-container {
+                width: 95%;
+            }
+            .question {
+                font-size: 18px;
+            }
+            .options button {
+                font-size: 14px;
+                padding: 8px;
+            }
+            #submit-btn, #next-btn {
+                font-size: 16px;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Quiz Game</h1>
+        <div class="question" id="question">Loading question...</div>
+        <div class="options" id="options"></div>
+        <button id="submit-btn" onclick="submitAnswer()">Submit</button>
+        <button id="next-btn" onclick="nextQuestion()">Next</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const questions = [
+    { question: "What is the main purpose of engineering ethics?", options: ["To make engineers rich", "To ensure public safety and trust", "To increase competition", "To lower production costs"], answer: "To ensure public safety and trust" },
+    { question: "According to the NSPE Code of Ethics, engineers must:", options: ["Only work on projects they are qualified for", "Take on any project for more experience", "Prioritize personal gain over public safety", "Share confidential information freely"], answer: "Only work on projects they are qualified for" },
+    { question: "Why should engineers report unsafe designs?", options: ["To avoid lawsuits", "To maintain ethical standards and public safety", "To increase project costs", "To gain recognition"], answer: "To maintain ethical standards and public safety" },
+    { question: "How can engineers improve public trust?", options: ["By being honest and transparent", "By hiding technical errors", "By following company orders blindly", "By reducing product quality"], answer: "By being honest and transparent" },
+    { question: "What is a key ethical responsibility of engineers regarding sustainability?", options: ["Ignoring environmental concerns", "Making decisions that benefit only the company", "Considering the long-term impact of projects on society", "Using cheaper, non-durable materials"], answer: "Considering the long-term impact of projects on society" },
+    { question: "What is business risk?", options: ["A guarantee of profit", "The chance of losing money due to unexpected events", "A way to eliminate competition", "A type of tax imposed by the government"], answer: "The chance of losing money due to unexpected events" },
+    { question: "Which of the following is an example of business risk?", options: ["Natural disasters damaging infrastructure", "Steady profit growth", "Increasing sales every year", "Expanding into new markets"], answer: "Natural disasters damaging infrastructure" },
+    { question: "How can businesses reduce risk?", options: ["Ignoring competition", "Conducting market research and using modern technology", "Refusing to innovate", "Avoiding advertising"], answer: "Conducting market research and using modern technology" },
+    { question: "Which is NOT a cause of business risk?", options: ["Natural disasters", "Competition", "Mismanagement", "Following ethical guidelines"], answer: "Following ethical guidelines" },
+    { question: "Why do businesses get insurance?", options: ["To increase profits", "To protect themselves from large financial losses", "To eliminate risks completely", "To avoid paying employees"], answer: "To protect themselves from large financial losses" },
+    { question: "What is the role of process automation in businesses?", options: ["To make tasks more complicated", "To eliminate the need for employees", "To complete repetitive tasks automatically", "To replace customer interactions"], answer: "To complete repetitive tasks automatically" },
+    { question: "Which tool helps businesses track customer behavior?", options: ["Spreadsheets", "Manual records", "Data analytics tools", "Paper invoices"], answer: "Data analytics tools" },
+    { question: "What is a key benefit of system integration?", options: ["Reducing employee salaries", "Connecting different systems to share data efficiently", "Slowing down processes", "Increasing manual paperwork"], answer: "Connecting different systems to share data efficiently" },
+    { question: "How do businesses use simulation software?", options: ["To make random decisions", "To test and improve processes before making real-world changes", "To replace employees", "To increase risk"], answer: "To test and improve processes before making real-world changes" },
+    { question: "What is a major benefit of using AI in workflow management?", options: ["Making decisions without data", "Automating repetitive tasks and improving efficiency", "Increasing manual work", "Ignoring customer needs"], answer: "Automating repetitive tasks and improving efficiency" },
+    { question: "What does BPO stand for?", options: ["Business Process Optimization", "Business Process Outsourcing", "Business Profit Operations", "Business Planning Organization"], answer: "Business Process Outsourcing" },
+    { question: "What is an example of back-office BPO?", options: ["Customer support", "Payroll processing", "Sales calls", "Advertising"], answer: "Payroll processing" },
+    { question: "What is a risk of BPO?", options: ["Security issues", "Increased revenue", "Lower efficiency", "Faster processes"], answer: "Security issues" },
+    { question: "Why do companies use BPO?", options: ["To increase internal workload", "To save money and focus on core business activities", "To avoid customer interactions", "To eliminate all business risks"], answer: "To save money and focus on core business activities" },
+    { question: "Which is a disadvantage of BPO?", options: ["Improved efficiency", "Overdependence on the service provider", "Reduced costs", "Access to global expertise"], answer: "Overdependence on the service provider" },
+    { question: "What do KPIs measure?", options: ["Employee personal interests", "Business performance and progress", "Company expenses only", "The number of employees in a company"], answer: "Business performance and progress" },
+    { question: "Why are efficiency metrics important?", options: ["They measure how well resources are used", "They track social media trends", "They increase unnecessary costs", "They focus on employee preferences"], answer: "They measure how well resources are used" },
+    { question: "What is an example of a financial metric?", options: ["Customer satisfaction", "Return on Investment (ROI)", "Employee happiness", "Office temperature"], answer: "Return on Investment (ROI)" },
+    { question: "How can businesses use customer feedback in KPIs?", options: ["To ignore customer opinions", "To improve service quality", "To increase prices without reason", "To focus only on internal processes"], answer: "To improve service quality" },
+    { question: "What does 'audit compliance rate' measure?", options: ["How well a business follows regulations", "The number of products sold", "Employee work hours", "Office cleanliness"], answer: "How well a business follows regulations" },
+    { question: "What is the main goal of workflow management?", options: ["To make work harder", "To organize tasks for efficiency", "To replace employees with AI", "To increase unnecessary paperwork"], answer: "To organize tasks for efficiency" },
+    { question: "Which is an example of a sequential workflow?", options: ["Multiple tasks being completed at the same time", "One task must be completed before the next starts", "Tasks being ignored to save time", "Completing steps in any order"], answer: "One task must be completed before the next starts" },
+    { question: "Why is mapping workflows important?", options: ["To make work slower", "To remove unnecessary steps and improve efficiency", "To confuse employees", "To add extra steps to the process"], answer: "To remove unnecessary steps and improve efficiency" },
+    { question: "What is a common challenge in workflow management?", options: ["Too much efficiency", "Resistance to change", "Having clear and structured processes", "Increased collaboration"], answer: "Resistance to change" },
+    { question: "Which technology helps automate workflows?", options: ["Manual registers", "Email", "AI and automation tools", "Paper-based tracking"], answer: "AI and automation tools" },
+    { question: "What does streamlining processes mean?", options: ["Adding extra steps to slow down work", "Simplifying tasks to improve efficiency", "Making work harder", "Removing all technology from work"], answer: "Simplifying tasks to improve efficiency" },
+    { question: "Which is a benefit of streamlining processes?", options: ["Increased workload", "Higher costs", "Faster completion of tasks", "More confusion among employees"], answer: "Faster completion of tasks" },
+    { question: "How can businesses reduce costs through streamlining?", options: ["By adding extra approval steps", "By eliminating unnecessary tasks", "By avoiding automation", "By hiring more employees than needed"], answer: "By eliminating unnecessary tasks" },
+    { question: "What role do KPIs play in process streamlining?", options: ["They help measure efficiency and identify areas for improvement", "They slow down work processes", "They are only used for marketing", "They increase unnecessary paperwork"], answer: "They help measure efficiency and identify areas for improvement" },
+    { question: "What is an example of process measurement?", options: ["Checking if customers receive their orders on time", "Guessing how long a task takes", "Ignoring feedback", "Avoiding automation"], answer: "Checking if customers receive their orders on time" },
+    { question: "What is a data-driven organization?", options: ["A business that makes decisions based on data", "A business that ignores customer feedback", "A company that guesses outcomes instead of using facts", "A company that avoids technology"], answer: "A business that makes decisions based on data" },
+    { question: "How does predictive analysis help businesses?", options: ["By making random decisions", "By guessing trends without data", "By using past data to predict future trends", "By ignoring past mistakes"], answer: "By using past data to predict future trends" },
+    { question: "What is a benefit of using data in business decisions?", options: ["More mistakes in planning", "Better decision-making and reduced risk", "Increased reliance on manual work", "Less customer satisfaction"], answer: "Better decision-making and reduced risk" },
+    { question: "How does data help improve customer relationships?", options: ["By sending personalized offers", "By ignoring customer feedback", "By reducing product quality", "By increasing response time to complaints"], answer: "By sending personalized offers" },
+    { question: "What is the first step in using data effectively?", options: ["Ignoring data collection", "Making decisions without analysis", "Collecting and organizing data properly", "Avoiding customer feedback"], answer: "Collecting and organizing data properly" },
+    { question: "What is process improvement?", options: ["A structured approach to analyzing and improving workflows", "A method to make processes slower", "A strategy to avoid innovation", "A way to eliminate efficiency"], answer: "A structured approach to analyzing and improving workflows" },
+    { question: "What is the goal of Six Sigma?", options: ["Reducing mistakes and improving quality", "Increasing product defects", "Ignoring process inefficiencies", "Making random decisions"], answer: "Reducing mistakes and improving quality" },
+    { question: "What does the PDCA cycle stand for?", options: ["Plan, Do, Check, Act", "Process, Design, Change, Approve", "Predict, Develop, Control, Analyze", "Plan, Design, Compare, Approve"], answer: "Plan, Do, Check, Act" },
+    { question: "How does Lean Six Sigma improve business processes?", options: ["By improving quality and removing waste", "By increasing unnecessary steps", "By avoiding efficiency", "By eliminating technology use"], answer: "By improving quality and removing waste" },
+    { question: "What is the main principle of Kaizen?", options: ["Continuous improvement through small daily changes", "Making big changes all at once", "Avoiding feedback from employees", "Ignoring efficiency in processes"], answer: "Continuous improvement through small daily changes" }
+  ];
+        
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedAnswer = "";
+
+        function loadQuestion() {
+            const questionEl = document.getElementById("question");
+            const optionsEl = document.getElementById("options");
+            const resultEl = document.getElementById("result");
+            const submitBtn = document.getElementById("submit-btn");
+            const nextBtn = document.getElementById("next-btn");
+            resultEl.textContent = "";
+            submitBtn.style.display = "block";
+            nextBtn.style.display = "none";
+            
+            const q = questions[currentQuestionIndex];
+            questionEl.textContent = q.question;
+            optionsEl.innerHTML = "";
+            
+            q.options.forEach(option => {
+                const button = document.createElement("button");
+                button.textContent = option;
+                button.onclick = () => selectAnswer(button, option);
+                optionsEl.appendChild(button);
+            });
+        }
+
+        function selectAnswer(button, answer) {
+            const buttons = document.querySelectorAll(".options button");
+            buttons.forEach(btn => btn.classList.remove("selected"));
+            button.classList.add("selected");
+            selectedAnswer = answer;
+        }
+
+        function submitAnswer() {
+            const q = questions[currentQuestionIndex];
+            const resultEl = document.getElementById("result");
+            const submitBtn = document.getElementById("submit-btn");
+            const nextBtn = document.getElementById("next-btn");
+            if (!selectedAnswer) {
+                resultEl.textContent = "Please select an answer.";
+                resultEl.style.color = "red";
+                return;
+            }
+            if (selectedAnswer === q.answer) {
+                resultEl.textContent = "Correct!";
+                resultEl.style.color = "green";
+                score++;
+            } else {
+                resultEl.textContent = "Incorrect! The correct answer is: " + q.answer;
+                resultEl.style.color = "red";
+            }
+            submitBtn.style.display = "none";
+            nextBtn.style.display = "block";
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                alert("Quiz over! Your score: " + score + "/" + questions.length);
+                location.reload();
+            }
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
